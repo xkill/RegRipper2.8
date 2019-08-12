@@ -1,7 +1,7 @@
 #-----------------------------------------------------------
 # termserv.pl
-# Plugin for Registry Ripper; 
-# 
+# Plugin for Registry Ripper;
+#
 # Change history
 #   20190527 - Added checks in Software hive
 #   20160224 - added SysProcs info
@@ -22,7 +22,7 @@
 #   AllowTSConnections value - http://support.microsoft.com/kb/305608
 #   TSEnabled value - http://support.microsoft.com/kb/222992
 #   TSUserEnabled value - http://support.microsoft.com/kb/238965
-#   
+#
 # copyright 2010 Quantum Analytics Research, LLC
 #-----------------------------------------------------------
 package termserv;
@@ -37,7 +37,7 @@ my %config = (hive          => "System, Software",
 
 sub getConfig{return %config}
 sub getShortDescr {
-	return "Gets Terminal Server settings from System and Software hives";	
+	return "Gets Terminal Server settings from System and Software hives";
 }
 sub getDescr{}
 sub getRefs {}
@@ -67,14 +67,14 @@ sub pluginmain {
 			::rptMsg($ts_path);
 			::rptMsg("LastWrite Time ".gmtime($ts->get_timestamp())." (UTC)");
 			::rptMsg("");
-			
+
 			my $ver;
 			eval {
 				$ver = $ts->get_value("ProductVersion")->get_data();
 				::rptMsg("  ProductVersion = ".$ver);
 			};
 			::rptMsg("");
-			
+
 			my $fdeny;
 			eval {
 				$fdeny = $ts->get_value("fDenyTSConnections")->get_data();
@@ -83,7 +83,7 @@ sub pluginmain {
 			};
 			::rptMsg("fDenyTSConnections value not found.") if ($@);
 			::rptMsg("");
-			
+
 			my $allow;
 			eval {
 				$allow = $ts->get_value("AllowTSConnections")->get_data();
@@ -91,7 +91,7 @@ sub pluginmain {
 				::rptMsg("  Ref: http://support.microsoft.com/kb/305608");
 			};
 			::rptMsg("");
-			
+
 			my $ad;
 			eval {
 				$ad = $ts->get_value("TSAdvertise")->get_data();
@@ -100,7 +100,7 @@ sub pluginmain {
 				::rptMsg("  Ref: http://support.microsoft.com/kb/281307");
 			};
 			::rptMsg("");
-			
+
 			my $enabled;
 			eval {
 				$enabled = $ts->get_value("TSEnabled")->get_data();
@@ -109,7 +109,7 @@ sub pluginmain {
 				::rptMsg("  Ref: http://support.microsoft.com/kb/222992");
 			};
 			::rptMsg("");
-			
+
 			my $user;
 			eval {
 				$user = $ts->get_value("TSUserEnabled")->get_data();
@@ -120,7 +120,7 @@ sub pluginmain {
 				::rptMsg("  Ref: http://support.microsoft.com/kb/238965");
 			};
 			::rptMsg("");
-			
+
 			my $help;
 			eval {
 				$help = $ts->get_value("fAllowToGetHelp")->get_data();
@@ -129,7 +129,7 @@ sub pluginmain {
 				::rptMsg("  support professional.");
 				::rptMsg("  Ref: http://www.pctools.com/guides/registry/detail/1213/");
 			};
-			
+
 			::rptMsg("AutoStart Locations");
 			eval {
 				my $start = $ts->get_subkey("Wds\\rdpwd")->get_value("StartupPrograms")->get_data();
@@ -140,7 +140,7 @@ sub pluginmain {
 				::rptMsg("");
 			};
 			::rptMsg("  StartupPrograms value not found\.") if ($@);
-			
+
 			eval {
 				my $init = $ts->get_subkey("WinStations\\RDP-Tcp")->get_value("InitialProgram")->get_data();
 				::rptMsg("WinStations\\RDP-Tcp key");
@@ -150,7 +150,7 @@ sub pluginmain {
 			};
 			::rptMsg(" InitialProgram value not found\.") if ($@);
 
-# Added 20190527			
+# Added 20190527
 			eval {
 				my $sec = $ts->get_subkey("WinStations\\RDP-Tcp")->get_value("SecurityLayer")->get_data();
 				::rptMsg("WinStations\\RDP-Tcp key");
@@ -158,7 +158,7 @@ sub pluginmain {
 				::rptMsg("Analysis Tip: Maybe be empty; appears as '{blank}'");
 			};
 
-# Added 20160224			
+# Added 20160224
 			eval {
 				my $sys = $ts->get_subkey("SysProcs");
 				my @vals = $sys->get_list_of_values();
@@ -168,11 +168,11 @@ sub pluginmain {
 					foreach my $v (@vals) {
 						::rptMsg("  ".$v->get_name()." - ".$v->get_data());
 					}
-				} 
+				}
 			};
 
 # Sticky Keys info, added 20131007
-# ref: http://www.room362.com/blog/2012/5/25/sticky-keys-and-utilman-against-nla.html					
+# ref: http://www.room362.com/blog/2012/5/25/sticky-keys-and-utilman-against-nla.html
 			eval {
 				::rptMsg("");
 				my $ua = $ts->get_subkey("WinStations\\RDP-Tcp")->get_value("UserAuthentication")->get_data();
@@ -183,7 +183,7 @@ sub pluginmain {
 				::rptMsg("http://www.room362.com/blog/2012/5/25/sticky-keys-and-utilman-against-nla.html");
 			};
 			::rptMsg("UserAuthentication value not found\.") if ($@);
-	
+
 		}
 		else {
 			::rptMsg($ts_path." not found.");
@@ -192,8 +192,8 @@ sub pluginmain {
 	else {
 		::rptMsg($key_path." not found.");
 	}
-	
-# Added 20190527	
+
+# Added 20190527
 	$key_path = "Policies\\Microsoft\\Windows NT\\Terminal Services";
 	if ($key = $root_key->get_subkey($key_path)) {
 		my $lw = $key->get_timestamp();
@@ -202,23 +202,23 @@ sub pluginmain {
 		::rptMsg("");
 
 # Note: fDenyTSConnections was added here because I've seen it used by bad actors,
-# not due to any MS documentation		
+# not due to any MS documentation
 		eval {
 			my $deny = $key->get_value("fDenyTSConnections")->get_data();
 			::rptMsg("fDenyTSConnections value = ".$deny);
 		};
-		
+
 		eval {
 			my $fallow = $key->get_value("fAllowUnsolicited")->get_data();
 			::rptMsg("fAllowUnsolicited value = ".$fallow);
 		};
-		
-		
+
+
 		eval {
 			my $fallowfc = $key->get_value("fAllowUnsolicitedFullControl")->get_data();
-			::rptMsg("fAllowUnsolicitedFullControl value = ".$fallow);
+			::rptMsg("fAllowUnsolicitedFullControl value = ".$fallowfc);
 		};
-				
+
 		eval {
 			my $user = $key->get_value("UserAuthentication")->get_data();
 			::rptMsg("UserAuthentication value = ".$user);
