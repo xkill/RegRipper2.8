@@ -29,7 +29,7 @@ my %config = (hive          => "Software",
 
 sub getConfig{return %config}
 sub getShortDescr {
-	return "Checks IFEO subkeys for Debugger & CWDIllegalInDllSearch values";	
+	return "Checks IFEO subkeys for Debugger & CWDIllegalInDllSearch values";
 }
 sub getDescr{}
 sub getRefs {}
@@ -48,14 +48,14 @@ sub pluginmain {
 	my $root_key = $reg->get_root_key;
 	my @paths = ("Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options",
 	             "Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options");
-	
+
 	foreach my $key_path (@paths) {
 		my $key;
 		if ($key = $root_key->get_subkey($key_path)) {
 			::rptMsg($key_path);
 #			::rptMsg("LastWrite Time ".gmtime($key->get_timestamp())." (UTC)");
 #			::rptMsg("");
-		
+
 			my @subkeys = $key->get_list_of_subkeys();
 			if (scalar(@subkeys) > 0) {
 				my %debug;
@@ -73,16 +73,16 @@ sub pluginmain {
 						$debug{$name}{debug} = $debugger;
 						$debug{$name}{lastwrite} = $s->get_timestamp();
 					}
-			
+
 					my $dllsearch = "";
 					eval {
 						$dllsearch = $s->get_value("CWDIllegalInDllSearch")->get_data();
 					};
-# 20190511 - added search for 'auto' value					
+# 20190511 - added search for 'auto' value
 					eval {
 						$debug{$name}{auto} = $s->get_value("Auto")->get_data();
 					};
-		
+
 # If the eval{} throws an error, it's b/c the Debugger value isn't
 # found within the key, so we don't need to do anything w/ the error
 					if ($dllsearch ne "") {
@@ -90,12 +90,12 @@ sub pluginmain {
 						$debug{$name}{lastwrite} = $s->get_timestamp();
 					}
 				}
-			
+
 				if (scalar (keys %debug) > 0) {
 					foreach my $d (keys %debug) {
 						::rptMsg($d."  LastWrite: ".gmtime($debug{$d}{lastwrite}));
 						::rptMsg("  Debugger             : ".$debug{$d}{debug}) if (exists $debug{$d}{debug});
-						::rptMsg("  Auto                 : ".$debug{$d}{auto} if (exists $debug{$d}{auto});
+						::rptMsg("  Auto                 : ".$debug{$d}{auto}) if (exists $debug{$d}{auto});
 						::alertMsg("Alert: imagefile: Debugger value found : ".$debug{$d}{debug}) if (exists $debug{$d}{debug});
 						::rptMsg("  CWDIllegalInDllSearch: ".$debug{$d}{dllsearch}) if (exists $debug{$d}{dllsearch});
 					}

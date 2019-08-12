@@ -3,11 +3,11 @@
 #
 # Change history:
 #  20190716 - created
-# 
+#
 # Ref:
 #  https://oddvar.moe/2018/03/21/persistence-using-runonceex-hidden-from-autoruns-exe/
 #
-# copyright 2019 QAR,LLC 
+# copyright 2019 QAR,LLC
 # Author: H. Carvey, keydet89@yahoo.com
 #-----------------------------------------------------------
 package runonceex;
@@ -23,7 +23,7 @@ my %config = (hive          => "Software",
 
 sub getConfig{return %config}
 sub getShortDescr {
-	return "Gets contents of RunOnceEx values";	
+	return "Gets contents of RunOnceEx values";
 }
 sub getDescr{}
 sub getRefs {}
@@ -37,32 +37,33 @@ sub pluginmain {
 	my $hive = shift;
 	::rptMsg("Launching runonceex v.".$VERSION);
 	::rptMsg("runonceex v.".$VERSION); # banner
-	::rptMsg("(".$config{hive}.") ".getShortDescr()."\n"); # banner 
+	::rptMsg("(".$config{hive}.") ".getShortDescr()."\n"); # banner
 	my $key_path = ('Microsoft\\Windows\\CurrentVersion\\RunOnceEx');
-	
+
 	::rptMsg("RunOnceEx");
 	my $reg = Parse::Win32Registry->new($hive);
 	my $root_key = $reg->get_root_key;
-	
+
 	my $key;
 	if ($key = $root_key->get_subkey($key_path)) {
 		::rptMsg($key_path);
-		
+
 		my @sk = $key->get_list_of_subkeys();
 		if (scalar(@sk) > 0) {
 			foreach my $s (@sk) {
 				::rptMsg($s->get_name());
 				::rptMsg("LastWrite Time ".gmtime($s->get_timestamp())." (UTC)");
 
-# Gets values and data				
+# Gets values and data
 				my @vals = $s->get_list_of_values();
 				if (scalar(@vals) > 0) {
 					foreach my $v (@vals) {
 						::rptMsg($v->get_name()." -> ".$v->get_data());
+                    }
 				}
 				::rptMsg("");
-				
-# Check for Depend key				
+
+# Check for Depend key
 				if (my $dep = $s->get_subkey("Depend")) {
 					my @vals2 = $dep->get_list_of_values();
 					if (scalar(@vals2) > 0) {
@@ -79,6 +80,6 @@ sub pluginmain {
 	}
 	else {
 		::rptMsg($key_path." not found.");
-	}	
+	}
 }
 1;
